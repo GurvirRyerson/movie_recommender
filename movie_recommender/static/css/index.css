@@ -253,7 +253,7 @@ body, body > .container{
 	text-align: center;
 }
 #update-recommendations-button{
-	font-size: 1rem;
+	font-size: 1vw;
 	height: 100%;
 	width: 100%;
 }
@@ -278,5 +278,6 @@ body, body > .container{
 	max-height: 20vh;
 	overflow-y: auto;
 	overflow-x: hidden;
-	padding-right: 2vw;
+	padding-right: 1vw;
+	max-width: 100%;
 }
