@@ -31,7 +31,7 @@ def get_titles(request):
 			if (len(content) == 0):
 				return HttpResponse(status=204)
 			response = JsonResponse(list(content), safe=False)
-  			request.session['previous_query'] = to_query
+			request.session['previous_query'] = to_query
 			return response
 		else:
 			return HttpResponse(status=204)
@@ -98,7 +98,7 @@ def get_movies_helper(movies_ratings_dict):
 			try:
 				movie_entry = Titles.objects.filter(movie_id=movie_id).values()[0] 
 			except IndexError:
-				print "No movie in the db with that id"
+				print ("No movie in the db with that id")
 
 			#parallelize for speed up
 			for i in rows:
