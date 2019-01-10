@@ -41,8 +41,8 @@ class Command(BaseCommand):
 			with gzip.open(FILE_PATH+'principles.gz','rb') as f_in, open(FILE_PATH+'principles.tsv', 'wb') as f_out:
 				shutil.copyfileobj(f_in, f_out)
 
-		except Exception,e:
-			print str(e)
+		except Exception as e:
+			print(str(e))
 			sys.exit()
 
 	def iterateOverTitles(self, titles_reader, titles_entry_counter, professions_entry_counter, update_number):
@@ -54,11 +54,11 @@ class Command(BaseCommand):
 					first_movie_id = row[0]
 					first_movie_gotten = True
 
-				title = row[2].decode('utf-8')
+				title = row[2]
 				genres = row[-1].split(',',-1)
 				genres_processed = []
 				for genre in genres:
-					if genre == "\N":
+					if genre == "\\N":
 						continue
 					genres_processed.append(genre)
 				genres = json.dumps(genres_processed)
@@ -74,15 +74,14 @@ class Command(BaseCommand):
 			#No new movies found in the updated db, so exit early
 	  		new_db_update = UpdateDB(update_number=update_number+1, titles_lines_to_skip=titles_entry_counter, professions_lines_to_skip=professions_entry_counter)
 	  		new_db_update.save()
-			sys.exit()
+	  		sys.exit()
 		else:
 			return first_movie_id, movies, titles_entry_counter
 
 	def iterateOverProfessions(self, professions_reader, professions_entry_counter, movies, previous_movie_id):
-  		movie_dict = {'actor':[],'actress':[],'writer':[],'producer':[],'cinematographer':[],'director':[]}
+		movie_dict = {'actor':[],'actress':[],'writer':[],'producer':[],'cinematographer':[],'director':[]}
 		movies_to_recompute = [] 
 		entries_list = []
-
 		sim_scores = Sim_scores.objects.all()
 		for row in sim_scores:
 			movie_entry = Titles.objects.filter(movie_id=row.movie_id).values()[0]
@@ -108,27 +107,25 @@ class Command(BaseCommand):
 
 					if len(entries_list) >= 900:
 						Titles.objects.bulk_create(entries_list)
- 						entries_list = []
+						entries_list = []
 					entries_list.append(Titles(movie_id=previous_movie_id,movie_title=title,year=year,genres=movie_dict['genres'],actors=movie_dict['actor'],writers=movie_dict['writer'],producers=movie_dict['producer'],cinematographer=movie_dict['cinematographer'],director=movie_dict['director']))
-  					movie_dict = {'actor':[],'actress':[],'writer':[],'producer':[],'cinematographer':[],'director':[]}
-  					previous_movie_id = movie_id
-  			professions_entry_counter += 1
-  		#Handles last rows that were < 900
-  		if entries_list != []:
-  			Titles.objects.bulk_create(entries_list)
+					movie_dict = {'actor':[],'actress':[],'writer':[],'producer':[],'cinematographer':[],'director':[]}
+					previous_movie_id = movie_id
+					professions_entry_counter += 1
+		#Handles last rows that were < 900
+		if entries_list != []:
+			Titles.objects.bulk_create(entries_list)
 
-  		return professions_entry_counter
+		return professions_entry_counter
 
 	def handle(self, *args, **options):
 		#self.getNewFiles()
-
 		try:
 			lines_to_skip = UpdateDB.objects.values().order_by('-update_number')[0]
 			update_number = lines_to_skip['update_number'] 
 			titles_entry_counter = lines_to_skip['titles_lines_to_skip'] #number of lines to skip processing in the movie titles file
 			professions_entry_counter = lines_to_skip['professions_lines_to_skip'] #number of lines to skip processing in the professions file
-			print titles_entry_counter
-			print professions_entry_counter
+
 		except IndexError:
 			#Initial lines to skip
 			update_number = 0
@@ -139,19 +136,19 @@ class Command(BaseCommand):
 			titles_reader = csv.reader(titles, delimiter='\t')
 			professions_reader = csv.reader(professions, delimiter='\t')
 
-			titles_reader.next() # skip header info
-			professions_reader.next() #skiper header info
+			next(titles_reader) # skip header info
+			next(professions_reader) #skiper header info
 
 			#Skip over files that are already in the db
 			for i in range(0,titles_entry_counter):
-				titles_reader.next()
+				next(titles_reader)
 
 			for i in range(0,professions_entry_counter):
-				professions_reader.next()
+				next(professions_reader)
 
-	  		first_movie_id, movies, titles_entry_counter = self.iterateOverTitles(titles_reader, titles_entry_counter, professions_entry_counter, update_number)
-	  		professions_entry_counter = self.iterateOverProfessions(professions_reader, professions_entry_counter, movies, first_movie_id)
+			first_movie_id, movies, titles_entry_counter = self.iterateOverTitles(titles_reader, titles_entry_counter, professions_entry_counter, update_number)
+			professions_entry_counter = self.iterateOverProfessions(professions_reader, professions_entry_counter, movies, first_movie_id)
 
 
-	  		new_db_update = UpdateDB(update_number=update_number+1, titles_lines_to_skip=titles_entry_counter, professions_lines_to_skip=professions_entry_counter)
-	  		new_db_update.save()
+			new_db_update = UpdateDB(update_number=update_number+1, titles_lines_to_skip=titles_entry_counter, professions_lines_to_skip=professions_entry_counter)
+			new_db_update.save()

@@ -27,9 +27,9 @@ def get_titles(request):
 			return HttpResponse(status=204)
 		#First query or it's a new query
 		elif "previous_query" not in request.session.keys() or request.session['previous_query'] != to_query:
-			content = Titles.objects.filter(movie_title__contains=to_query).values('movie_title',"movie_id", "year")[:100]
+			content = Titles.objects.filter(movie_title__icontains=to_query).values('movie_title',"movie_id", "year")[:100]
 			if (len(content) == 0):
-				return HttpResponse(status=204)
+				return HttpResponse(status=204)	
 			response = JsonResponse(list(content), safe=False)
 			request.session['previous_query'] = to_query
 			return response
