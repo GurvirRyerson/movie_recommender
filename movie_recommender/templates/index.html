@@ -1,0 +1,139 @@
+<head>
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+
+	<!-- jQuery library -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+	<!--- jQuery UI -->
+	<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+
+	<!-- Popper JS -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+
+	<!-- Latest compiled JavaScript -->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+
+	<!--- JS Cookie -->
+	<script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
+
+
+	{% load static %}
+	<script type="text/javascript">
+		var empty_pic = "{% static "images/fallback.png" %}";
+		var get_titles_url = "{% url 'get_titles' %}";
+		var get_recommendations_url = "{% url 'get_recommendations' %}";
+		var save_ratings_url = "{% url 'save_ratings' %}";
+	</script>
+
+	<script type="text/javascript" src="{% static "scripts/index.js" %}"></script>
+	<link rel="stylesheet" type="text/css" href="{% static 'css/index.css'%}">
+	<meta name="viewport" content="width=device-width,minimum-scale=1,maximum-scale=1">
+</head>
+<body ondragstart="return false"; ondrop="return false;">
+	<div class="container">
+		<div class="row" id="all-content">
+			<div class="col-12" id="rating-display">
+				<div class="container" id="rating-form">
+					<div class="container" id="form-title-div">
+						<h1 id="form-title"> Rate Movies </h1>
+					</div>
+					<div class="container" id="movie-selector">
+						<div class="row">
+							<div class="col-2">
+								<label for="movie-to-rate" id="movie-title-label"> Movie </label>
+							</div>
+							<div class="col">
+								<input id="movie-title-input">
+							</div>
+						</div>
+					</div>
+					<div class="container" id="rating-selector">
+						<div class="row">
+							<div class="col-2">
+								<label for="rating"> Rating </label>
+							</div>
+							<div class="col">
+								<input type="number" id="rating" min=1 placeholder="1-5">
+							</div>
+						</div>
+					</div>
+					<div id="add-rating-div">
+						<button type="button" class="btn btn-primary" id="add-rating">Add Rating</button>
+					</div>
+				</div>
+				<div class="container" id="rated-movies">
+				</div>
+				<div class="container" id="update-recommendations-div">
+					<button type="button" class="btn btn-primary" id="update-recommendations-button">Update Recommendations</button>
+				</div>
+			</div>
+			<div class="col loading-div">
+				<canvas id="loading-canvas" </canvas>
+			</div>
+			<div class="col" id="recommendation-display">
+				<div class="container">
+					<div class="row" id="column-div">
+						<div class="col-left" id="left-col">
+							<div class="container poster-and-description">
+								<div class="row side-ranking-div" id="left-ranking-div">
+									<h1 class="side-ranking-text" id="left-ranking-text"></h1>
+								</div>
+								<div class="row side-img-row">
+									<img class="back-img" id="left-img">
+								</div>
+							</div>
+							<div class="row hidden-description" id="description-div">
+									<div class="container" id="movie-title-div">
+										<h3 class="movie-title" id="left-movie-title"></h3>
+									</div>
+									<div class="container" id="description-text-div">
+										<p class="description-text" id="left-movie-description"> </p>
+									</div>
+							</div>
+						</div>
+
+						<div class="col-main" id='main-content'>
+							<div class="container poster-and-description" style="padding:0;">
+								<div class="row" id="main-ranking-div">
+									<h1 id="main-ranking-text"></h1>
+								</div>
+								<div class="row main-img-row">
+									<img class="main-img" id="main-img">
+								</div>
+								<div class="row main-description" id="description-div">
+									<div class="container" id="movie-title-div">
+										<h3 class="movie-title" id="main-movie-title"></h3>
+									</div>
+									<div class="container" id="description-text-div">
+										<p class="description-text" id="main-movie-description"> </p>
+										<a href="#" id="imdb-link"></a>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="col-right" id="right-col">
+							<div class="container poster-and-description">
+								<div class="row side-ranking-div" id="right-ranking-div">
+									<h1 class="side-ranking-text" id="right-ranking-text"></h1>
+								</div>
+								<div class="row side-img-row">
+									<img class="back-img" id="right-img">
+								</div>
+								<div class="row hidden-description" id="description-div">
+									<div class="container" id="movie-title-div">
+										<h3 class="movie-title" id="right-movie-title"></h3>
+									</div>
+									<div class="container" id="description-text-div">
+										<p class="description-text" id="right-movie-description"> </p>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
