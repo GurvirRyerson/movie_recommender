@@ -216,7 +216,6 @@ function postRatings(){
 			}, 1000);
 			$("#recommendation-display").css("display","flex");
 			clearInterval(loading_animation);
-			var counter = 1;
 			for (var i in data){
 				var movie_id = i
 				var imdb_link = "http://www.imdb.com/title/"+movie_id+"/"
@@ -230,8 +229,7 @@ function postRatings(){
 					img_url = empty_pic; //Most likely going have to alter this (path and the img itself)
 				}
 
-				recommendations[counter] = [img_url,description,title,imdb_link];
-				counter++;
+				recommendations[data[i][3]] = [img_url,description,title,imdb_link];
 			}
 			setRecommendations();
 		});

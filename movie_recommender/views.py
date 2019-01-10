@@ -26,14 +26,12 @@ def get_titles(request):
 		if len(to_query) == 0: 
 			return HttpResponse(status=204)
 		#First query or it's a new query
-		elif "to_query" not in request.session.keys() or request.session['to_query'] != to_query:
+		elif "previous_query" not in request.session.keys() or request.session['previous_query'] != to_query:
 			content = Titles.objects.filter(movie_title__contains=to_query).values('movie_title',"movie_id", "year")[:100]
 			if (len(content) == 0):
-				print "here"
 				return HttpResponse(status=204)
 			response = JsonResponse(list(content), safe=False)
   			request.session['previous_query'] = to_query
-  			print to_query
 			return response
 		else:
 			return HttpResponse(status=204)
@@ -117,6 +115,7 @@ def get_movies_helper(movies_ratings_dict):
 		top_5 = {}
 		scores_all = sorted([item for sublist in scores_all for item in sublist], key=lambda x: x[2], reverse=True)
 		#i[0] is movie_id, i[1] is movie_title
+		rank = 1
 		for i in scores_all:
 			if i[1] not in movies:
 				if PostersAndDescription.objects.filter(movie_id=i[0]).exists():
@@ -126,7 +125,8 @@ def get_movies_helper(movies_ratings_dict):
 				else:
 					poster_path = None
 					description = None
-				top_5[i[0]] = [i[1],poster_path,description]
+				top_5[i[0]] = [i[1],poster_path,description,rank]
+				rank += 1
 			if len(top_5) == 5:
 				return top_5
 
@@ -149,6 +149,9 @@ def save_ratings(request):
 
 			ratings_to_insert = Ratings(user=user_id, ratings=json.dumps(ratings), average_rating = float(avg_rating)/len(ratings))
 			ratings_to_insert.save()
+			return HttpResponse(status=200)
+	else:
+		return HttpResponse(status=405)
 '''
 def test_cbf(request):
 	if request.method == "POST":
