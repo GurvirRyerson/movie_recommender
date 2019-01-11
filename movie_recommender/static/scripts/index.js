@@ -192,7 +192,9 @@ function postRatings(){
 		$("#recommendation-display").css('display','none');
 		$(".loading-div").css("display",'flex');
 		clearInterval(loading_animation);
+		console.log(loading_animation);
 		drawLoadingAnimation();	
+		console.log(loading_animation);
 		$.ajax({
 			url: get_recommendations_url,
 			method: "POST",
@@ -209,35 +211,59 @@ function postRatings(){
 				}
 			}
 
-		}).done(function(data){
-			$(".loading-div").css("display","none");
-			$("#recommendation-display").animate({
-				opacity:1
-			}, 1000);
-			$("#recommendation-display").css("display","flex");
-			clearInterval(loading_animation);
-			for (var i in data){
-				var movie_id = i
-				var imdb_link = "http://www.imdb.com/title/"+movie_id+"/"
-				var title = data[i][0];
-				var img_url =  data[i][1];
-				var description = data[i][2];
-				if (description === null){
-					description = "No description available";
-				}
-				if (img_url === null){
-					img_url = empty_pic; //Most likely going have to alter this (path and the img itself)
-				}
-
-				recommendations[data[i][3]] = [img_url,description,title,imdb_link];
-			}
-			setRecommendations();
+		}).done(function(taskID_to_check){
+			polling(taskID_to_check);
 		});
 	}
 	else{
 		alert ("Must rate at least one movie to receive a recommendations");
 		return
 	}
+}
+
+function polling(taskID_to_check){
+	$.ajax({
+		url: task_check_url,
+		method: "GET",
+		data: {taskID:taskID_to_check},
+		statusCode:{
+			405: function(){
+				alert("Only get requests allowed");
+			},
+			500: function(){
+				alert("Error processing those ratings, please try again");
+			},
+			202: function(){
+				setTimeout(polling, 1000, taskID_to_check);
+			},
+			200: function(data){
+				console.log(data);
+				$(".loading-div").css("display","none");
+				$("#recommendation-display").animate({
+					opacity:1
+				}, 1000);
+				$("#recommendation-display").css("display","flex");
+				clearInterval(loading_animation);
+				for (var i in data){
+					var movie_id = i
+					var imdb_link = "http://www.imdb.com/title/"+movie_id+"/"
+					var title = data[i][0];
+					var img_url =  data[i][1];
+					var description = data[i][2];
+					if (description === null){
+						description = "No description available";
+					}
+					if (img_url === null){
+						img_url = empty_pic; //Most likely going have to alter this (path and the img itself)
+					}
+
+					recommendations[data[i][3]] = [img_url,description,title,imdb_link];
+				}
+				setRecommendations();	
+			} 
+		}
+
+	});
 }
 
 function getTitles(){

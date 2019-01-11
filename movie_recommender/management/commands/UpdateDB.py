@@ -1,4 +1,5 @@
 from django.core.management.base import BaseCommand, CommandError
+from django.db.models import Max
 from movie_recommender.models import Titles, Sim_scores, UpdateDB
 from movie_recommender.recommender_system import compute_sim
 import csv, time, json, requests, gzip, shutil, sys, os
@@ -120,6 +121,7 @@ class Command(BaseCommand):
 
 	def handle(self, *args, **options):
 		#self.getNewFiles()
+
 		try:
 			lines_to_skip = UpdateDB.objects.values().order_by('-update_number')[0]
 			update_number = lines_to_skip['update_number'] 

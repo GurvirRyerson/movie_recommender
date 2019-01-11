@@ -23,4 +23,5 @@ urlpatterns = [
     url(r'^get_recommendations$', views.get_movies, name="get_recommendations"),
     url(r'^get_titles$', views.get_titles, name="get_titles"),
     url(r'^save_ratings$', views.save_ratings, name="save_ratings"),
+    url(r'^task_done$', views.task_done, name="check_task_finished"),
 ]
