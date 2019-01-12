@@ -2,15 +2,16 @@ from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.core.exceptions import ObjectDoesNotExist
-import json
-import sys
 from movie_recommender.recommender_system import * 
 from movie_recommender.models import Titles, Sim_scores, Ratings, PostersAndDescription
 from django.contrib.sessions.models import Session
 import random
 import time
+import json
+import sys
 from .tasks import get_movies_helper
 from celery.result import AsyncResult
+from ratelimit.decorators import ratelimit
 
 @ensure_csrf_cookie
 def index(request):
@@ -18,7 +19,7 @@ def index(request):
 	Session.objects.all().delete()
 	return response
 
-#Debating on adding a timer here to limit requests
+@ratelimit(block=True, key='ip', rate="1/s")
 def get_titles(request):
 	if request.method == 'POST':
 		try:
@@ -63,7 +64,7 @@ def get_movies(request):
 	else:
 		return HttpResponse(status=405)
 
-#Would benefit from turning polling into a websocket
+@ratelimit(block=True, key='ip', rate='1/s')
 def task_done(request):
 	if request.method == "GET":
 		task_status = request.GET['taskID']

@@ -283,6 +283,6 @@ body, body > .container{
 	max-height: 20vh;
 	overflow-y: auto;
 	overflow-x: hidden;
-	padding-right: 1vw;
-	max-width: 100%;
+	max-width: 100%
+	width:90%;
 }

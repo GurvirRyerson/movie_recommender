@@ -136,6 +136,8 @@ function validateChosenRating(){
 		var movie_id = title_to_id_map[movie_title];	
 	}
 	else{
+		console.log(movie_title_given);
+		console.log(title_to_id_map);
 		confirm("ERROR: This movie is not an option");
 		$("#rating").val(null);
 		$("#movie-title-input").val(null);
@@ -233,7 +235,11 @@ function polling(taskID_to_check){
 				alert("Error processing those ratings, please try again");
 			},
 			202: function(){
+				setTimeout(polling, 100, taskID_to_check);
+			},
+			403: function(){
 				setTimeout(polling, 1000, taskID_to_check);
+				console.log("hit ratelimit");
 			},
 			200: function(data){
 				$(".loading-div").css("display","none");
@@ -281,6 +287,9 @@ function getTitles(){
 				},
 				405: function(){
 					alert("This action only supports POST requests");
+				},
+				403: function(){
+					setTimeout(getTitles, 1000);
 				}
 			}
 		}).done(function(data){
@@ -429,8 +438,9 @@ function selectLeftImg(){
 
 		}});
 	}});
-
-	
-
 }
-
+//Fixes autocomplete overflowing body when the response title is too large
+jQuery.ui.autocomplete.prototype._resizeMenu = function (){
+	var ul = this.menu.element;
+	ul.outerWidth(this.element.outerWidth());
+}
