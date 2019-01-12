@@ -14,9 +14,7 @@ def get_movies_helper(movies_ratings_dict):
 		return to_watch_dict
 	else:
 		#Not enough memory to load entire db, have to go search line by line
-		print("Here1")
 		rows = Titles.objects.all()
-		print("Here2") 
 		movies = []
 		scores_all = []
 		#Maybe look into parallelizing this 
@@ -40,15 +38,13 @@ def get_movies_helper(movies_ratings_dict):
 				to_compare = {'genres':i.genres, 'actors':i.actors, 'writers':i.writers, 'producers':i.producers, 'cinematographer':i.cinematographer, 'director':i.director}
 				if i.movie_id != movie_id:
 					scores.append([i.movie_id,i.movie_title,compute_sim(movie_entry,to_compare)])
-			scores = sorted(scores, key=lambda x: x[2], reverse=True)[0:5]
-	
-			print("here3")
+			scores = sorted(scores, key=lambda x: x[2], reverse=True)[:50]
+
 			sim_score = Sim_scores(movie_id = movie_id, scores = json.dumps(scores))
 			if (Sim_scores.objects.filter(movie_id = movie_id).exists() == False):
 				sim_score.save()
 
 			scores_all.append(scores)
-			print("here4")
 		top_5 = {}
 		scores_all = sorted([item for sublist in scores_all for item in sublist], key=lambda x: x[2], reverse=True)
 		#i[0] is movie_id, i[1] is movie_title

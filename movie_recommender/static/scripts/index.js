@@ -212,7 +212,6 @@ function postRatings(){
 			}
 
 		}).done(function(taskID_to_check){
-			console.log("Got taskID");
 			polling(taskID_to_check);
 		});
 	}
@@ -258,7 +257,7 @@ function polling(taskID_to_check){
 						description = "No description available";
 					}
 					if (img_url === null){
-						img_url = empty_pic; //Most likely going have to alter this (path and the img itself)
+						img_url = empty_pic;
 					}
 
 					recommendations[data[i][3]] = [img_url,description,title,imdb_link];

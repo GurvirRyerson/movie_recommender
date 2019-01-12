@@ -53,8 +53,6 @@ def get_movies(request):
 
 
 		if len(movies_ratings_dict) == 0:
-			request.session['processing_request'] = False
-			request.session.save()
 			return HttpResponse(status=400)
 
 		#Put something here to kill tasks when update is called again
