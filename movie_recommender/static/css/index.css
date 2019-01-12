@@ -273,6 +273,7 @@ body, body > .container{
 	height: 50%;
 	margin: 0;
 	font-size: 1.3vh;
+	overflow: auto;
 }
 
 .rated-movie-title{

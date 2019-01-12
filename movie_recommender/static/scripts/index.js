@@ -171,7 +171,7 @@ function validateChosenRating(){
 
 function addRating(movie_title, movie_rating, movie_id){
 	var movie_title_ele = $("<span></span>").text(movie_title+": ").css('color','white').attr({"id":movie_id, "class":"rated-movie-title"});
-	var rating_ele = $("<span></span>").text(movie_rating+"/5 Stars").css('color','white');
+	var rating_ele = $("<span></span>").text(movie_rating+"/5 Stars").css('color','red');
 	var rating_info = $("<p></p>").append(movie_title_ele).append(rating_ele);
 
 	var rating_info_div = $("<div></div>").append(rating_info).attr("class","ratings-div");
@@ -235,7 +235,7 @@ function polling(taskID_to_check){
 				alert("Error processing those ratings, please try again");
 			},
 			202: function(){
-				setTimeout(polling, 100, taskID_to_check);
+				setTimeout(polling, 1000, taskID_to_check);
 			},
 			403: function(){
 				setTimeout(polling, 1000, taskID_to_check);
