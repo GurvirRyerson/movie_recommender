@@ -117,18 +117,15 @@ def get_recommended_movies(watched,sim_users,avg_rating_user):
 def compute_sim(row1,row2):
 	score = 0
 	#aribitrary weights
-	weights = {'movie_id':0,'movie_title':0,'year':0,'genres':1.3,'actors':1.4,'writers':1.7,'producers':1.5,'cinematographer':1.1,'director':1.6}
+	weights = {'genres':1.3,'actors':1.4,'writers':1.7,'producers':1.5,'cinematographer':1.1,'director':1.6}
 	for col in row1:
-		if (col != 'movie_id' and col !='movie_title' and col != 'year'):
-			x = json.loads(row1[col])
-			y = json.loads(row2[col])
-			if (len(x) == 0 or len(y) == 0):
-				continue
-			else:
-				normalize = max(len(x),len(y))
-				score += weights[col] * (len(set(x).intersection(set(y))))/normalize
-		else:
+		x = json.loads(row1[col])
+		y = json.loads(row2[col])
+		if (len(x) == 0 or len(y) == 0):
 			continue
+		else:
+			normalize = max(len(x),len(y))
+			score += weights[col] * (len(set(x).intersection(set(y))))/normalize
 
 	return score
 

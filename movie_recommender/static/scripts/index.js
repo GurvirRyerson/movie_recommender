@@ -192,9 +192,7 @@ function postRatings(){
 		$("#recommendation-display").css('display','none');
 		$(".loading-div").css("display",'flex');
 		clearInterval(loading_animation);
-		console.log(loading_animation);
 		drawLoadingAnimation();	
-		console.log(loading_animation);
 		$.ajax({
 			url: get_recommendations_url,
 			method: "POST",
@@ -212,6 +210,7 @@ function postRatings(){
 			}
 
 		}).done(function(taskID_to_check){
+			console.log("Got taskID");
 			polling(taskID_to_check);
 		});
 	}
@@ -237,7 +236,6 @@ function polling(taskID_to_check){
 				setTimeout(polling, 1000, taskID_to_check);
 			},
 			200: function(data){
-				console.log(data);
 				$(".loading-div").css("display","none");
 				$("#recommendation-display").animate({
 					opacity:1
@@ -289,7 +287,6 @@ function getTitles(){
 			if (data === undefined){
 				return
 			}
-			console.log("k");
 			movies_list = [];
 			/*
 				Emptying to avoid having too many titles on users system, makes experience really slow. 

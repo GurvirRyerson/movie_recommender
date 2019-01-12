@@ -25,7 +25,7 @@ SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['localhost']
+ALLOWED_HOSTS = ['localhost','178.128.228.90']
 
 
 # Application definition
@@ -79,7 +79,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'movie_recommender_db',
-        'USER': 'gurvir',
+        'USER': 'movie_recommender_db_gurvir',
         'PASSWORD': os.environ['DB_PASSWORD'],
         'HOST': 'localhost',
         'PORT': '',
@@ -123,7 +123,7 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_URL = '/static/'
 
 CELERY_BROKER_URL = 'amqp://localhost'

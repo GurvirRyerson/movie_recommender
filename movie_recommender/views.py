@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import ensure_csrf_cookie
 from django.core.exceptions import ObjectDoesNotExist
 import json
 import sys
@@ -12,7 +12,7 @@ import time
 from .tasks import get_movies_helper
 from celery.result import AsyncResult
 
-
+@ensure_csrf_cookie
 def index(request):
 	response = render(request,'index.html')
 	Session.objects.all().delete()
@@ -90,13 +90,12 @@ def save_ratings(request):
 			#Could also use some other selecting user ids, like using the session id. Don't know if that is unique or not
 			try:
 				latest_user = Ratings.objects.latest('user').user 
-				User_id = latest_user + 1
+				user_id = latest_user + 1
 			except ObjectDoesNotExist:
 				user_id = 1
 
 			ratings_to_insert = Ratings(user=user_id, ratings=json.dumps(ratings), average_rating = float(avg_rating)/len(ratings))
 			ratings_to_insert.save()
-			print("Save")
 			return HttpResponse(status=200)
 	else:
 		return HttpResponse(status=405)
