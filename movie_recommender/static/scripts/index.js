@@ -153,6 +153,10 @@ function validateChosenRating(){
 		return;
 	}
 	else if (movie_id in movie_rating_dictionary && movie_rating_dictionary[movie_id] != movie_rating){
+		console.log(movie_rating_dictionary);
+		$("#rating-for"+movie_id).text(movie_rating+"/5 Stars");
+		movie_rating_dictionary[movie_id] = movie_rating;
+		console.log(movie_rating_dictionary);
 		return;
 	}
 
@@ -170,7 +174,7 @@ function validateChosenRating(){
 
 function addRating(movie_title, movie_rating, movie_id){
 	var movie_title_ele = $("<span></span>").text(movie_title+": ").css('color','white').attr({"id":movie_id, "class":"rated-movie-title"});
-	var rating_ele = $("<span></span>").text(movie_rating+"/5 Stars").css('color','red');
+	var rating_ele = $("<span></span>").text(movie_rating+"/5 Stars").attr("id","rating-for"+movie_id).css('color','red');
 	var rating_info = $("<p></p>").append(movie_title_ele).append(rating_ele);
 
 	var rating_info_div = $("<div></div>").append(rating_info).attr("class","ratings-div");
