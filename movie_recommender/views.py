@@ -17,7 +17,8 @@ from ratelimit.decorators import ratelimit
 @ensure_csrf_cookie
 def index(request):
 	response = render(request,'index.html')
-	Session.objects.all().delete()
+	with open("/home/gurvir/movie_recommender_project/debug_file.txt") as f:
+		f.write("Testing")
 	return response
 
 @ratelimit(block=True, key='ip', rate="1/s")
@@ -76,7 +77,9 @@ def task_done(request):
 		if res.state == 'SUCCESS':
 			return JsonResponse(res.result, safe=False)
 		elif res.state == 'FAILURE':
-			print(res.result) #For debugging
+			with open("/home/gurvir/movie_recommender_project/debug_file.tx", "w") as f:
+				f.write(res.result)
+				f.write(res.failed())
 			return HttpResponse(status=500)
 		else:
 			if request.GET['taskID'] != request.session['task_id']:
