@@ -275,7 +275,9 @@ function polling(taskID_to_check){
 
 function getTitles(){
 	var current_movie_title = $("#movie-title-input").val();
-	if (current_movie_title === movie_title || current_movie_title === "" || current_movie_title in title_to_id_map){
+	//Ignore when the input field has a movie selected
+	var regex_pattern = /([0-9])|(Unknown)/g;
+	if (current_movie_title === movie_title || current_movie_title === "" || regex_pattern.test(current_movie_title)){
 		return;
 	}
 	else{
