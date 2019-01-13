@@ -34,7 +34,7 @@ $(document).ready(function(){
 		typingTimer = setTimeout(getTitles, doneTypingInterval);
 	});
 
-	$("#movie-selector").children().keydown(function(event){
+	$("#movie-title-input").keydown(function(event){
 		clearTimeout(typingTimer);
 	});
 
@@ -129,6 +129,7 @@ function setRecommendations(){
 }
 
 function validateChosenRating(){
+	clearTimeout(typingTimer);
 	var rating_div = $("<div></div>").attr("class","row selected-ratings")
 	var movie_title_given = $("#movie-title-input").val();
 	if (movie_title_given in title_to_id_map){
@@ -136,8 +137,6 @@ function validateChosenRating(){
 		var movie_id = title_to_id_map[movie_title];	
 	}
 	else{
-		console.log(movie_title_given);
-		console.log(title_to_id_map);
 		confirm("ERROR: This movie is not an option");
 		$("#rating").val(null);
 		$("#movie-title-input").val(null);
@@ -280,6 +279,7 @@ function getTitles(){
 		return;
 	}
 	else{
+		clearTimeout(typingTimer);
 		movie_title = current_movie_title;	
 		$.ajax({
 			url: get_titles_url,
@@ -307,6 +307,9 @@ function getTitles(){
 			*/
 			title_to_id_map = {}; 
 			for (var i in data){
+				if (data[i].year === -1){
+					data[i].year = "Unknown";
+				}
 				movies_list.push(data[i].movie_title+" ("+data[i].year+")");
 				title_to_id_map[data[i].movie_title+" ("+data[i].year+")"] = data[i].movie_id;
 			}
