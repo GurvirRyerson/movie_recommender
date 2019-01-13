@@ -4,6 +4,7 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from django.core.exceptions import ObjectDoesNotExist
 from movie_recommender.recommender_system import * 
 from movie_recommender.models import Titles, Sim_scores, Ratings, PostersAndDescription
+from django.db.models.functions import Length
 from django.contrib.sessions.models import Session
 import random
 import time
@@ -17,11 +18,8 @@ from ratelimit.decorators import ratelimit
 @ensure_csrf_cookie
 def index(request):
 	response = render(request,'index.html')
-	with open("/home/gurvir/movie_recommender_project/debug_file.txt") as f:
-		f.write("Testing")
 	return response
 
-@ratelimit(block=True, key='ip', rate="1/s")
 def get_titles(request):
 	if request.method == 'POST':
 		try:
@@ -32,7 +30,8 @@ def get_titles(request):
 			return HttpResponse(status=204)
 		#First query or it's a new query
 		elif "previous_query" not in request.session.keys() or request.session['previous_query'] != to_query:
-			content = Titles.objects.filter(movie_title__icontains=to_query).values('movie_title',"movie_id", "year")[:100]
+			print(to_query)
+			content = Titles.objects.filter(movie_title__icontains=to_query).values('movie_title',"movie_id", "year").order_by(Length('movie_title').asc())[:50]
 			if (len(content) == 0):
 				return HttpResponse(status=204)	
 			response = JsonResponse(list(content), safe=False)
