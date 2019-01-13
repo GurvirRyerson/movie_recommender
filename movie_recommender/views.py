@@ -11,6 +11,7 @@ import json
 import sys
 from .tasks import get_movies_helper
 from celery.result import AsyncResult
+from celery.task.control import revoke
 from ratelimit.decorators import ratelimit
 
 @ensure_csrf_cookie
@@ -46,6 +47,9 @@ def get_titles(request):
 #Rename to post?
 def get_movies(request):
 	if request.method == "POST":
+		if 'task_id' in request.session.keys():
+			revoke(request.session['task_id'], terminate=True)
+			print("Terminated", request.session['task_id'])
 		movies_ratings_dict = {}
 		for key in request.POST:
 			if Titles.objects.filter(movie_id=key).exists():
@@ -58,7 +62,9 @@ def get_movies(request):
 		#Put something here to kill tasks when update is called again
 		request.session['ratings'] = movies_ratings_dict
 		top_5_taskID = get_movies_helper.delay(movies_ratings_dict)
-		return HttpResponse(top_5_taskID)
+		request.session['task_id'] = str(top_5_taskID)
+		request.session.save()
+		return HttpResponse(top_5_taskID, status=200)
 	else:
 		return HttpResponse(status=405)
 
@@ -73,7 +79,10 @@ def task_done(request):
 			print(res.result) #For debugging
 			return HttpResponse(status=500)
 		else:
-			return HttpResponse(status=202)
+			if request.GET['taskID'] != request.session['task_id']:
+				return HttpResponse(status=204)
+			else:
+				return HttpResponse(status=202)
 	else:
 		return HttpResponse(status=405)
 

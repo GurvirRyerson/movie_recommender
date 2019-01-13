@@ -208,6 +208,9 @@ function postRatings(){
 				},
 				405: function(){
 					alert("This action only supports POST requests");
+				},
+				500: function(){
+					alert("Broke");
 				}
 			}
 
@@ -236,9 +239,11 @@ function polling(taskID_to_check){
 			202: function(){
 				setTimeout(polling, 1000, taskID_to_check);
 			},
+			204: function(){
+				return;
+			},
 			403: function(){
 				setTimeout(polling, 1000, taskID_to_check);
-				console.log("hit ratelimit");
 			},
 			200: function(data){
 				$(".loading-div").css("display","none");

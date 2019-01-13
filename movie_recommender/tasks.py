@@ -37,8 +37,11 @@ def get_movies_helper(movies_ratings_dict):
 			for i in rows.iterator(chunk_size=10000):
 				to_compare = {'genres':i.genres, 'actors':i.actors, 'writers':i.writers, 'producers':i.producers, 'cinematographer':i.cinematographer, 'director':i.director}
 				if i.movie_id != movie_id:
-					scores.append([i.movie_id,i.movie_title,compute_sim(movie_entry,to_compare)])
-			scores = sorted(scores, key=lambda x: x[2], reverse=True)[:50]
+					similarity_score = compute_sim(movie_entry,to_compare)
+					if similarity_score > 0:
+						scores.append([i.movie_id,i.movie_title,similarity_score])
+
+			scores = sorted(scores, key=lambda x: x[2], reverse=True)
 
 			sim_score = Sim_scores(movie_id = movie_id, scores = json.dumps(scores))
 			if (Sim_scores.objects.filter(movie_id = movie_id).exists() == False):
