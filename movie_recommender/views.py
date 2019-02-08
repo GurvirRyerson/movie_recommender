@@ -30,7 +30,6 @@ def get_titles(request):
 			return HttpResponse(status=204)
 		#First query or it's a new query
 		elif "previous_query" not in request.session.keys() or request.session['previous_query'] != to_query:
-			print(to_query)
 			content = Titles.objects.filter(movie_title__icontains=to_query).values('movie_title',"movie_id", "year").order_by(Length('movie_title').asc())[:50]
 			if (len(content) == 0):
 				return HttpResponse(status=204)	
@@ -43,28 +42,29 @@ def get_titles(request):
 	else:
 		return HttpResponse(status=405)
 
-
 #Rename to post?
 def get_movies(request):
 	if request.method == "POST":
-		if 'task_id' in request.session.keys():
-			revoke(request.session['task_id'], terminate=True)
-			print("Terminated", request.session['task_id'])
-		movies_ratings_dict = {}
-		for key in request.POST:
-			if Titles.objects.filter(movie_id=key).exists():
-				movies_ratings_dict[key] = int(request.POST[key])
-
-
-		if len(movies_ratings_dict) == 0:
-			return HttpResponse(status=400)
-
-		#Put something here to kill tasks when update is called again
-		request.session['ratings'] = movies_ratings_dict
-		top_5_taskID = get_movies_helper.delay(movies_ratings_dict)
-		request.session['task_id'] = str(top_5_taskID)
-		request.session.save()
-		return HttpResponse(top_5_taskID, status=200)
+		try:
+			if 'task_id' in request.session.keys():
+				try:
+					revoke(request.session['task_id'], terminate=True)
+					print("Terminated", request.session['task_id'])
+				except Exception as ex:
+					print(ex) 
+			movies_ratings_dict = {}
+			for key in request.POST:
+				if Titles.objects.filter(movie_id=key).exists():
+					movies_ratings_dict[key] = int(request.POST[key])
+			if len(movies_ratings_dict) == 0:
+				return HttpResponse(status=400)
+			request.session['ratings'] = movies_ratings_dict
+			top_5_taskID = get_movies_helper.delay(movies_ratings_dict)
+			request.session['task_id'] = str(top_5_taskID)
+			request.session.save()
+			return HttpResponse(top_5_taskID, status=200)
+		except Exception as ex:
+			print(ex)
 	else:
 		return HttpResponse(status=405)
 
@@ -73,15 +73,17 @@ def task_done(request):
 	if request.method == "GET":
 		task_status = request.GET['taskID']
 		res = AsyncResult(task_status)
+		try:
+			res.state
+		except Exception as ex:
+			print(ex)
+			return HttpResponse(status=202)
 		if res.state == 'SUCCESS':
 			return JsonResponse(res.result, safe=False)
 		elif res.state == 'FAILURE':
-			with open("/home/gurvir/movie_recommender_project/debug_file.tx", "w") as f:
-				f.write(res.result)
-				f.write(res.failed())
-			return HttpResponse(status=500)
+			return HttpResponse(status=404)
 		else:
-			if request.GET['taskID'] != request.session['task_id']:
+			if 'task_id' in request.session.keys() and request.GET['taskID'] != request.session['task_id']:
 				return HttpResponse(status=204)
 			else:
 				return HttpResponse(status=202)
