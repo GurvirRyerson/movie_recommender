@@ -1,6 +1,7 @@
 from django.test import TestCase
 from django.urls import reverse
 from movie_recommender.models import *
+from django.db.models.functions import Length
 
 class ModelTests(TestCase):
 	def setUp(self):
@@ -21,13 +22,14 @@ class ModelTests(TestCase):
 		#response = self.client.get(reverse("index"))
 		response = self.client.post(reverse('get_titles'), {'currently_typed':"H"})
 		response = response.json()
-		self.assertEqual(response[0]['movie_title'], "Hello")
+		self.assertEqual(response[0]['movie_title'], "He")
 
 	def test_multiple_entries(self):
 		query = "H"
 		response = self.client.post(reverse('get_titles'), {'currently_typed':query})
 		response = response.json()
-		self.assertEqual(response,list(Titles.objects.filter(movie_title__contains=query).values('movie_title',"movie_id", "year")[:100]))
+		content = Titles.objects.filter(movie_title__icontains=query).values('movie_title',"movie_id", "year").order_by(Length('movie_title').asc())[:50]	
+		self.assertEqual(response,list(content))
 
 	def test_duplicate_query(self):
 		response = self.client.post(reverse('get_titles'), {'currently_typed':"H"})
