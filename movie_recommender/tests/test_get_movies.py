@@ -1,6 +1,7 @@
 from django.test import TestCase
 from django.urls import reverse
-from movie_recommender.models import *
+from movie_recommender.models import Titles
+from celery.result import AsyncResult
 import json
 
 class ModelTests(TestCase):
@@ -35,19 +36,16 @@ class ModelTests(TestCase):
 		response = self.client.get(reverse('get_recommendations'))
 		self.assertEqual(response.status_code, 405)
 
-	#Test that the most similar movie is correctly ranked
-	def test_prediciton(self):
+	def test_task_queued(self):
 		response = self.client.post(reverse('get_recommendations'),{"1":4})
-		response = response.json()
-		self.assertEqual(response['6'][3], 1)
+		task_status = AsyncResult(str(response.content)).state
+		self.assertEqual(task_status, 'PENDING')
 
-
-	'''
-	Not sure how to test this, currently client waits for first request to finish then does second
-	def test_prevent_multiple_posts(self):
-		response = self.client.post(reverse('get_recommendations'),{"1":4,"2":4,"3":4,"4":4,"5":4})
-		response_2 = self.client.post(reverse('get_recommendations'),{"1":4})
-		print response_2.status_code
-	'''
+	def test_task_done(self):
+		response = self.client.post(reverse('get_recommendations'),{"1":4})
+		task_status = AsyncResult(str(response.content)).state
+		response = self.client.get(reverse("check_task_finished"), {'taskID':task_status})
+		self.assertEqual(response.status_code, 204)
+	
 
 

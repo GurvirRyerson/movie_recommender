@@ -4,7 +4,7 @@ import time
 import math
 
 def user_based_cf(current_ratings,entries):
-	avg_rating1 = sum(int(current_ratings[key]) for key in current_ratings)/len(current_ratings)
+	avg_rating1 = sum(int(current_ratings[key]) for key in current_ratings)/float(len(current_ratings))
 	#for i in entries:
 	#	entry = json.loads(i['ratings'])
 
@@ -23,15 +23,15 @@ def user_based_cf(current_ratings,entries):
 
 		if len(ratings1) > 0:
 			score = pearson_score(ratings1,ratings2,avg_rating1,avg_rating2)
-			pearson_sim_scores.append([i['user'],score, avg_rating2])
+			pearson_sim_scores.append([i['user'], score, avg_rating2])
 
+	#No common movies shared with any other users
+	if (len(pearson_sim_scores) == 0):
+		return None
+	else:
+		pearson_sim_scores = sorted(pearson_sim_scores, key=lambda x: x[1], reverse=True)
 
-	pearson_sim_scores = sorted(pearson_sim_scores, key=lambda x: x[1], reverse=True)
-	with open('pearson_scores.txt','w') as fp:
-		for i in pearson_sim_scores:
-			fp.write(json.dumps(i))
-			
-	k = 50
+	k = 50 #Only take top 50 similar users, arbitrary
 	sim_users = []
 	for i in pearson_sim_scores:
 		for j in entries:
@@ -64,7 +64,7 @@ def pearson_score(rating1,rating2,avg_rating1,avg_rating2):
 		denominator_rating1 += x**2
 		denominator_rating2 += y**2
 
-	denominator = math.sqrt(denominator_rating1*denominator_rating2)
+	denominator = float(math.sqrt(denominator_rating1*denominator_rating2))
 
 	if (denominator == 0):
 		return 0
@@ -93,6 +93,9 @@ def get_recommended_movies(watched,sim_users,avg_rating_user):
 	for movie_to_guess_rating in not_watched:
 		adjust_weighted_sum = 0
 
+		#User[2] = avg rating for that user
+		#User[1] = movie ratings dict for user
+		#User[0] = pearson sim score 
 		for user in sim_users:
 			avg_rating_sim = user[2]
 			for movie in user[1]:
@@ -108,10 +111,13 @@ def get_recommended_movies(watched,sim_users,avg_rating_user):
 			continue
 
 	recommended = sorted(ratings, key=lambda x: x[1], reverse=True)
-	if (len(recommended) < 10):
+	#Switch to recommending similar movies instead of recommending movies that the user would dislike
+	if recommended[0][1] < 3:
+		return None
+	elif (len(recommended) < 5):
 		return recommended
 	else:
-		return recommended[0:10]
+		return recommended[0:5]
 
 
 def compute_sim(row1,row2):
